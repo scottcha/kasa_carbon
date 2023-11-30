@@ -1,4 +1,4 @@
-from kasa import Discover, SmartPlug
+from kasa import Discover, SmartPlug, SmartStrip
 from modules.database import Database
 from modules.electricitymaps_api import ElectricityMapAPI
 import asyncio
@@ -36,10 +36,14 @@ class KasaMonitor:
         if len(self.devices) == 0:
             await self.discover_devices()
 
-        # Get energy use for each device
         for addr, device in self.devices.items():
             await device.update()
-            if device.has_emeter:
+            if isinstance(device, SmartStrip):
+                for i, plug in enumerate(device.children):
+                    if plug.has_emeter:
+                        emeter_realtime = plug.emeter_realtime
+                        energy_values[f"{device.alias + '-' + plug.alias}"] = emeter_realtime["power"]
+            elif device.has_emeter:
                 emeter_realtime = device.emeter_realtime
                 energy_values[device.alias] = emeter_realtime["power"]
 
