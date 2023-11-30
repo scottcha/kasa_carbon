@@ -39,4 +39,6 @@ jobs:
                 docker-compose up -d
 
             - name: Run tests
+              env:
+                PYTHONPATH: ${{ github.workspace }}
               run: pytest -m "not real_device and not real_em_api"
