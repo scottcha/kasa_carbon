@@ -8,6 +8,8 @@ services:
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_PASSWORD: ${DB_PASSWORD} 
       POSTGRES_USER: ${DB_USER}
+      VIEW_USER: ${DB_VIEW_USER}
+      VIEW_USER_PASSWORD: ${DB_VIEW_USER_PASSWORD}
     volumes:
       - ./sql:/docker-entrypoint-initdb.d
     ports:

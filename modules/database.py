@@ -9,17 +9,16 @@ class Database:
     async def write_usage(self, energy_usage):
         self.conn = await asyncpg.connect(**self.db_config)
         try:
-            await self.conn.execute(
-                "INSERT INTO energy_usage (device, timestamp, power, avg_mg_co2) VALUES ($1, $2, $3, $4)",
-                energy_usage["device"], energy_usage["timestamp"], energy_usage["power"], energy_usage["avg_mg_co2"]
-            )
+            sql_query = self._generate_insert_sql_query(energy_usage)
+            await self.conn.execute(sql_query, *energy_usage.values())
         finally:
             await self.close()
 
-    async def read_usage(self):
+    async def read_usage(self, columns="*"):
         self.conn = await asyncpg.connect(**self.db_config)
         try:
-            result = await self.conn.fetch("SELECT * FROM energy_usage")
+            sql_query = self._generate_select_sql_query(columns)
+            result = await self.conn.fetch(sql_query)
         finally:
             await self.close()
         return result
@@ -28,3 +27,15 @@ class Database:
         if self.conn is not None and not self.conn.is_closed():
             await self.conn.close()
             self.conn = None
+
+    def _generate_insert_sql_query(self, energy_usage):
+        columns = ', '.join(energy_usage.keys())
+        values = ', '.join(['$' + str(i) for i in range(1, len(energy_usage) + 1)])
+        return f"INSERT INTO energy_usage ({columns}) VALUES ({values})"
+
+    def _generate_select_sql_query(self, columns="*"):
+        if columns == "*":
+            columns_str = "*"
+        else:
+            columns_str = ', '.join(columns)
+        return f"SELECT {columns_str} FROM energy_usage"

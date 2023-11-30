@@ -65,7 +65,7 @@ async def test_monitor_energy_use_real_device():
 @pytest.mark.asyncio
 @pytest.mark.real_device
 @pytest.mark.real_database
-async def test_monitor_energy_use_continuously_integration():
+async def test_monitor_energy_use_continuously_integration(energy_usage):
     # Arrange
     db_config = config.db_config
     db = Database(db_config)
@@ -82,10 +82,9 @@ async def test_monitor_energy_use_continuously_integration():
     result = await db.read_usage()
 
     assert len(result) > 0
-    assert result[0]["device"] is not None 
-    assert result[0]["timestamp"]  is not None
-    assert result[0]["power"] is not None 
-    assert result[0]["avg_mg_co2"] is not None 
+    for key, value in energy_usage.items():
+        assert result[0][key] is not None 
+
 
     #empty the db again    
     conn = await asyncpg.connect(**db_config)

@@ -12,7 +12,7 @@ class KasaMonitor:
         self.lon = None
         self.grid_id = None
         if (local_lat is None or local_lon is None) and local_grid_id is None:
-            #TODO use a geoip service to get the lat/lon
+            #TODO get the location from the smart plug; it should have it
             self.lat = os.getenv("LOCAL_LAT")
             self.lon = os.getenv("LOCAL_LON")
         elif local_grid_id is not None:
@@ -57,6 +57,25 @@ class KasaMonitor:
             return await self.co2_api.get_co2_by_latlon(self.lat, self.lon) 
 
     async def monitor_energy_use_continuously(self, db, delay, timeout=None):
+        '''
+        Monitor energy use continuously and store the data in the database.
+
+        DB Schema:
+        device VARCHAR(255) NOT NULL,
+        timestamp TIMESTAMPTZ NOT NULL,
+        power_draw_watts real NOT NULL,
+        avg_emitted_mgco2e real,
+        grid_carbon_intensity_gco2perkwhr real,
+        PRIMARY KEY (device, timestamp)
+
+        Args:
+            db (Database): The database to store the energy use data in.
+            delay (int): The number of seconds to wait between each update.
+            timeout (int, optional): The number of seconds to run the monitor for. Defaults to None, which will run forever.
+        
+        Returns:
+            None
+        '''
         start_time = time.time()
 
         try:
@@ -66,8 +85,14 @@ class KasaMonitor:
                 #Get average CO2 from API
                 co2 = await self._get_co2_data()
                 for device, power in energy_values.items():
-
-                    energy_usage = {"device": device, "timestamp": datetime.now(timezone.utc), "power": power, "avg_mg_co2": co2}
+                    #convert gird co2 to device actual co2 by taking the timespan (assuming constant power draw over that period) and 
+                    #multiplying by the grid co2 while also converting to mgCO2e
+                    power_kwatts = power / 1000.0 #convert to kW from watts
+                    hours = delay / 3600.0 #time in use in hours
+                    co2emitted = hours * power_kwatts * co2 / 1000.0 #convert to mgCO2e 
+                    energy_usage = {"device": device, "timestamp": datetime.now(timezone.utc), 
+                                    "power_draw_watts": power, "avg_emitted_mgco2e": co2emitted,
+                                    "grid_carbon_intensity_gco2perkwhr": co2}
                     await db.write_usage(energy_usage)
 
                 if timeout is not None and time.time() - start_time >= timeout:
