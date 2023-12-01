@@ -1,0 +1,49 @@
+# .github/workflows/test.yml
+name: Run tests
+
+on:
+    pull_request:
+        branches:
+            - main
+            - ppe
+
+jobs:
+    test:
+        runs-on: ubuntu-latest
+        env:
+            DB_HOST: ${{ secrets.DB_HOST }}
+            DB_USER: ${{ secrets.DB_USER }}
+            DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+            DB_NAME: ${{ secrets.DB_NAME }}
+            DB_PORT: ${{ secrets.DB_PORT }}
+            DB_VIEW_USER: ${{ secrets.DB_VIEW_USER }}
+            DB_VIEW_USER_PASSWORD: ${{ secrets.DB_VIEW_USER_PASSWORD }}
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v3
+
+            - name: Set up Python
+              uses: actions/setup-python@v2
+              with:
+                python-version: 3.12
+
+            - name: Install dependencies
+              run: |
+                python -m pip install --upgrade pip
+                if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+            - name: Set up Docker Compose
+              run: |
+                sudo apt-get update
+                sudo apt-get install -y docker-compose
+                docker-compose up -d
+                #output the postgres db host name
+                docker ps
+                sleep 10
+                docker exec kasa_carbon_db_1 psql -U ${{ secrets.DB_USER }} -c "\l"
+                
+            - name: Run tests
+              env:
+                PYTHONPATH: ${{ github.workspace }}
+                EM_CACHE_EXPIRY_MINS: 30 
+              run: pytest -m "not real_device and not real_em_api"
