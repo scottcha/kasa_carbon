@@ -41,4 +41,5 @@ jobs:
             - name: Run tests
               env:
                 PYTHONPATH: ${{ github.workspace }}
+                EM_CACHE_EXPIRY_MINS: ${{ env.EM_CACHE_EXPIRY_MINS }}
               run: pytest -m "not real_device and not real_em_api"
