@@ -66,27 +66,27 @@ async def test_read_usage():
     mock_connect.return_value.fetch.assert_called_once_with(expected_query)
     mock_connect.return_value.close.assert_called_once()
 
-# @pytest.mark.asyncio
-# @pytest.mark.real_database
-# async def test_write_usage_realdb(energy_usage):
-#     # Arrange
-#     db_config = config.db_config
-#     db = Database(db_config)
+@pytest.mark.asyncio
+@pytest.mark.real_database
+async def test_write_usage_realdb(energy_usage):
+    # Arrange
+    db_config = config.db_config
+    db = Database(db_config)
 
-#     # Act
-#     await db.write_usage(energy_usage)
+    # Act
+    await db.write_usage(energy_usage)
 
-#     # Assert
-#     conn = await asyncpg.connect(**db_config)
-#     try:
-#         result = await conn.fetchrow("SELECT * FROM energy_usage WHERE device = $1", energy_usage["device"])
-#         assert result is not None
-#         for key, value in energy_usage.items():
-#             assert result[key] == value
+    # Assert
+    conn = await asyncpg.connect(**db_config)
+    try:
+        result = await conn.fetchrow("SELECT * FROM energy_usage WHERE device = $1", energy_usage["device"])
+        assert result is not None
+        for key, value in energy_usage.items():
+            assert result[key] == value
         
-#     finally:
-#         await conn.execute("DELETE FROM energy_usage")
-#         await conn.close()
+    finally:
+        await conn.execute("DELETE FROM energy_usage")
+        await conn.close()
 
 @pytest.mark.asyncio
 @pytest.mark.real_database
