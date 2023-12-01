@@ -39,7 +39,8 @@ jobs:
                 docker-compose up -d
                 #output the postgres db host name
                 docker ps
-                docker exec kasa_carbon_db_1 psql -U postgres -c "\l"
+                sleep 10
+                docker exec kasa_carbon_db_1 psql -U ${{ secrets.DB_USER }} -c "\l"
                 
             - name: Run tests
               env:
