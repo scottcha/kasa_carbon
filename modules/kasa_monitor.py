@@ -1,6 +1,8 @@
 from kasa import Discover, SmartPlug, SmartStrip
 from modules.database import Database
+from interfaces.datastore_api import DatastoreAPI
 from modules.electricitymaps_api import ElectricityMapAPI
+from modules.energy_usage import EnergyUsage
 import asyncio
 import time, os
 from datetime import datetime, timezone
@@ -56,7 +58,7 @@ class KasaMonitor:
         else:
             return await self.co2_api.get_co2_by_latlon(self.lat, self.lon) 
 
-    async def monitor_energy_use_continuously(self, db, delay, timeout=None):
+    async def monitor_energy_use_continuously(self, db: DatastoreAPI, delay: int, timeout: int=None):
         '''
         Monitor energy use continuously and store the data in the database.
 
@@ -93,7 +95,7 @@ class KasaMonitor:
                     energy_usage = {"device": device, "timestamp": datetime.now(timezone.utc), 
                                     "power_draw_watts": power, "avg_emitted_mgco2e": co2emitted,
                                     "grid_carbon_intensity_gco2perkwhr": co2}
-                    await db.write_usage(energy_usage)
+                    await db.write_usage(EnergyUsage(energy_usage_dict=energy_usage))
 
                 if timeout is not None and time.time() - start_time >= timeout:
                     break
