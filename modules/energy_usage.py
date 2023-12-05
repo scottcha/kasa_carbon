@@ -19,3 +19,8 @@ class EnergyUsage:
     def get_dict(self) -> dict:
         return {"device": self.device, "timestamp": self.timestamp, "power_draw_watts": self.power_draw_watts, 
                 "avg_emitted_mgco2e": self.avg_emitted_mgco2e, "grid_carbon_intensity_gco2perkwhr": self.grid_carbon_intensity_gco2perkwhr}
+    
+    #get csv headers
+    @staticmethod
+    def keys() -> list:
+        return ["device", "timestamp", "power_draw_watts", "avg_emitted_mgco2e", "grid_carbon_intensity_gco2perkwhr"]
