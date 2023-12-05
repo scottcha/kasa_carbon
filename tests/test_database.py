@@ -4,6 +4,7 @@ import pytest
 import asyncpg
 from unittest.mock import patch, AsyncMock, Mock
 from modules.database import Database
+from modules.energy_usage import EnergyUsage
 import config
    
 
@@ -25,25 +26,24 @@ async def setup_method():
     print("Tearing down")
 
 @pytest.mark.asyncio
-async def test_write_usage(energy_usage):
+async def test_write_usage(energy_usage_test_data):
     # Arrange
     db_config = {"user": "test", "password": "test", "database": "test", "host": "localhost"}
     db = Database(db_config)
-
     with patch('asyncpg.connect', new_callable=AsyncMock) as mock_connect:
         mock_connect.return_value.execute = AsyncMock()
         mock_connect.return_value.is_closed = Mock(return_value=False)
         mock_connect.return_value.close = AsyncMock()
 
         # Act
-        await db.write_usage(energy_usage)
+        await db.write_usage(energy_usage_test_data)
         
         # Assert
         mock_connect.assert_called_once_with(**db_config)
-        expected_query = db._generate_insert_sql_query(energy_usage)
+        expected_query = db._generate_insert_sql_query(energy_usage_test_data)
         mock_connect.return_value.execute.assert_called_once_with(
             expected_query,
-            *energy_usage.values()
+            *energy_usage_test_data.get_dict().values()
         )
         mock_connect.return_value.close.assert_called_once()
 
@@ -68,20 +68,20 @@ async def test_read_usage():
 
 @pytest.mark.asyncio
 @pytest.mark.real_database
-async def test_write_usage_realdb(energy_usage):
+async def test_write_usage_realdb(energy_usage_test_data):
     # Arrange
     db_config = config.db_config
     db = Database(db_config)
 
     # Act
-    await db.write_usage(energy_usage)
+    await db.write_usage(energy_usage_test_data)
 
     # Assert
     conn = await asyncpg.connect(**db_config)
     try:
-        result = await conn.fetchrow("SELECT * FROM energy_usage WHERE device = $1", energy_usage["device"])
+        result = await conn.fetchrow("SELECT * FROM energy_usage WHERE device = $1", energy_usage_test_data.get_dict()["device"])
         assert result is not None
-        for key, value in energy_usage.items():
+        for key, value in energy_usage_test_data.get_dict().items():
             assert result[key] == value
         
     finally:
@@ -90,15 +90,15 @@ async def test_write_usage_realdb(energy_usage):
 
 @pytest.mark.asyncio
 @pytest.mark.real_database
-async def test_read_usage_realdb(energy_usage):
+async def test_read_usage_realdb(energy_usage_test_data):
     # Arrange
     db_config = config.db_config 
     db = Database(db_config)
   
     conn = await asyncpg.connect(**db_config)
     try:
-        insert_query = db._generate_insert_sql_query(energy_usage)
-        await conn.execute(insert_query, *energy_usage.values())
+        insert_query = db._generate_insert_sql_query(energy_usage_test_data)
+        await conn.execute(insert_query, *energy_usage_test_data.get_dict().values())
     finally:
         await conn.close()
 
@@ -107,7 +107,7 @@ async def test_read_usage_realdb(energy_usage):
 
     # Assert
     assert len(result) > 0
-    for key, value in energy_usage.items():
+    for key, value in energy_usage_test_data.get_dict().items():
         assert result[0][key] == value
 
     conn = await asyncpg.connect(**db_config)
