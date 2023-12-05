@@ -2,9 +2,10 @@ import pytest
 import re
 from datetime import datetime, timezone
 import pytz
+from modules.energy_usage import EnergyUsage
 
 @pytest.fixture
-def energy_usage():
+def energy_usage_test_data() -> EnergyUsage:
     # Read the SQL file
     with open('sql/01_init.sql', 'r') as file:
         sql = file.read()
@@ -29,4 +30,5 @@ def energy_usage():
         elif 'real' in column_type:
             energy_usage[column_name] = 50.0
  
-    return energy_usage
+
+    return EnergyUsage(energy_usage_dict=energy_usage)
