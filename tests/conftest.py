@@ -30,4 +30,5 @@ def energy_usage_test_data() -> EnergyUsage:
         elif 'real' in column_type:
             energy_usage[column_name] = 50.0
  
+
     return EnergyUsage(energy_usage_dict=energy_usage)
