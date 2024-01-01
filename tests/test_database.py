@@ -2,10 +2,11 @@
 
 import pytest
 import asyncpg
+import os
 from unittest.mock import patch, AsyncMock, Mock
-from modules.database import Database
-from modules.energy_usage import EnergyUsage
-import config
+from kasa_carbon.modules.database import Database
+from kasa_carbon.modules.energy_usage import EnergyUsage
+import kasa_carbon.config as config
    
 
 @pytest.fixture(autouse=True)
@@ -70,7 +71,13 @@ async def test_read_usage():
 @pytest.mark.real_database
 async def test_write_usage_realdb(energy_usage_test_data):
     # Arrange
-    db_config = config.db_config
+    db_config = {
+        "user": os.getenv("DB_USER"),
+        "password": os.getenv("DB_PASSWORD"),
+        "database": os.getenv("DB_NAME"),
+        "host": os.getenv("DB_HOST"),
+        "port": os.getenv("DB_PORT"),
+    }
     db = Database(db_config)
 
     # Act
@@ -92,7 +99,13 @@ async def test_write_usage_realdb(energy_usage_test_data):
 @pytest.mark.real_database
 async def test_read_usage_realdb(energy_usage_test_data):
     # Arrange
-    db_config = config.db_config 
+    db_config = {
+        "user": os.getenv("DB_USER"),
+        "password": os.getenv("DB_PASSWORD"),
+        "database": os.getenv("DB_NAME"),
+        "host": os.getenv("DB_HOST"),
+        "port": os.getenv("DB_PORT"),
+    }
     db = Database(db_config)
   
     conn = await asyncpg.connect(**db_config)

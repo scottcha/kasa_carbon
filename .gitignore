@@ -164,3 +164,4 @@ cython_debug/
 
 #project specific ignores
 em_cache.json
+*.csv

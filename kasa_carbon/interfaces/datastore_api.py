@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from modules.energy_usage import EnergyUsage
+from kasa_carbon.modules.energy_usage import EnergyUsage
 
 class DatastoreAPI(ABC):
     @abstractmethod
@@ -7,7 +7,7 @@ class DatastoreAPI(ABC):
         pass
 
     @abstractmethod
-    async def read_usage(self, columns="*"):
+    async def read_usage(self, last_n=10, columns="*"):
         pass
 
     @abstractmethod

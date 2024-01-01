@@ -11,7 +11,7 @@ services:
       VIEW_USER: ${DB_VIEW_USER}
       VIEW_USER_PASSWORD: ${DB_VIEW_USER_PASSWORD}
     volumes:
-      - ./sql:/docker-entrypoint-initdb.d
+      - ./kasa_carbon/sql:/docker-entrypoint-initdb.d
     ports:
       - ${DB_PORT}:5432
     

@@ -1,6 +1,6 @@
 import asyncio
-from modules.energy_usage import EnergyUsage
-from interfaces.datastore_api import DatastoreAPI
+from kasa_carbon.modules.energy_usage import EnergyUsage
+from kasa_carbon.interfaces.datastore_api import DatastoreAPI
 import csv, os
 
 class FileStorage(DatastoreAPI): 
@@ -21,9 +21,11 @@ class FileStorage(DatastoreAPI):
             writer = csv.writer(f)
             writer.writerow(energy_usage.get_dict().values())
 
-    async def read_usage(self, columns="*"):
+    async def read_usage(self, last_n=10, columns="*"):
         with open(self.file_path, 'r') as f:
-            return f.readlines()
+            #read last_n lines
+            lines = f.readlines()[-last_n:]
+            return lines 
 
     async def close(self):
         pass

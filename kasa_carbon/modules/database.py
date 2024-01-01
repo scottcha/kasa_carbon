@@ -1,7 +1,7 @@
 import asyncio
 import asyncpg
-from modules.energy_usage import EnergyUsage
-from interfaces.datastore_api import DatastoreAPI
+from kasa_carbon.modules.energy_usage import EnergyUsage
+from kasa_carbon.interfaces.datastore_api import DatastoreAPI
 
 class Database(DatastoreAPI):
     def __init__(self, db_config):
@@ -17,10 +17,10 @@ class Database(DatastoreAPI):
         finally:
             await self.close()
 
-    async def read_usage(self, columns="*"):
+    async def read_usage(self, last_n=10, columns="*"):
         self.conn = await asyncpg.connect(**self.db_config)
         try:
-            sql_query = self._generate_select_sql_query(columns)
+            sql_query = self._generate_select_sql_query(last_n, columns=columns)
             result = await self.conn.fetch(sql_query)
         finally:
             await self.close()
@@ -37,9 +37,9 @@ class Database(DatastoreAPI):
         values = ', '.join(['$' + str(i) for i in range(1, len(energy_usage_dict) + 1)])
         return f"INSERT INTO energy_usage ({columns}) VALUES ({values})"
 
-    def _generate_select_sql_query(self, columns="*"):
+    def _generate_select_sql_query(self, last_n, columns="*"):
         if columns == "*":
             columns_str = "*"
         else:
             columns_str = ', '.join(columns)
-        return f"SELECT {columns_str} FROM energy_usage"
+        return f"SELECT {columns_str} FROM energy_usage ORDER BY timestamp DESC LIMIT {last_n}"

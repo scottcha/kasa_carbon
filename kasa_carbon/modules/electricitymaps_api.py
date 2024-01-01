@@ -1,6 +1,6 @@
 
 import aiohttp
-from interfaces.carbon_api import CarbonAPI
+from kasa_carbon.interfaces.carbon_api import CarbonAPI
 import os 
 from datetime import datetime, timezone, timedelta
 import json
@@ -9,10 +9,10 @@ class ElectricityMapAPI(CarbonAPI):
     BASE_URL = "https://api-access.electricitymaps.com/free-tier/carbon-intensity/latest"
     CACHE_FILE = "em_cache.json"
 
-    def __init__(self, co2_time_threshold_mins=120, clear_cache=False):
-        self.api_key = os.getenv("EM_API_KEY")
+    def __init__(self, em_api_key, co2_time_threshold_mins=120, clear_cache=False, em_cache_expiry_mins=30):
+        self.api_key = em_api_key 
         self.co2_time_threshold_mins = co2_time_threshold_mins
-        self.CACHE_EXPIRY = timedelta(int(os.getenv("EM_CACHE_EXPIRY_MINS")))
+        self.CACHE_EXPIRY = timedelta(int(em_cache_expiry_mins))
         if clear_cache:
             self._clear_cache()
         else:

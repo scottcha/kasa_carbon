@@ -2,7 +2,7 @@ import pytest
 import re
 from datetime import datetime, timezone
 import pytz
-from modules.energy_usage import EnergyUsage
+from kasa_carbon.modules.energy_usage import EnergyUsage
 
 @pytest.fixture
 def energy_usage_test_data() -> EnergyUsage:

@@ -1,0 +1,23 @@
+[project]
+name = "kasa_carbon"
+version = "0.0.5"
+authors = [
+  { name="Scott Chamberlin", email="scott@snowymountainworks.com" },
+]
+description = "Monitor energy and carbon values from Kasa smart plug"
+readme = "README.md"
+dynamic = ["scripts", "dependencies"]
+requires-python = ">=3.12"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://github.com/scottcha/kasa_carbon"
+Issues = "https://github.com/scottcha/kasa_carbon/issues"
+
+[build-system]
+requires = ["setuptools>=42", "wheel", "toml"]
+build-backend = "setuptools.build_meta"

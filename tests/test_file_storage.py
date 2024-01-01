@@ -1,8 +1,8 @@
 import asyncio
 import pytest
 from unittest.mock import patch, mock_open, call
-from modules.file_storage import FileStorage
-from modules.energy_usage import EnergyUsage
+from kasa_carbon.modules.file_storage import FileStorage
+from kasa_carbon.modules.energy_usage import EnergyUsage
 import os
 
 @pytest.mark.asyncio
