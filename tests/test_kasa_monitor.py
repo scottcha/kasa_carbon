@@ -1,8 +1,8 @@
 import pytest
+import os
 from unittest.mock import MagicMock, AsyncMock, Mock, patch
-from modules.kasa_monitor import KasaMonitor
-from modules.database import Database
-import config
+from kasa_carbon.modules.kasa_monitor import KasaMonitor
+from kasa_carbon.modules.database import Database
 import asyncpg
 
 @pytest.mark.asyncio
@@ -10,7 +10,7 @@ async def test_discover_devices():
     # Arrange
     with patch('kasa.Discover.discover') as mock_discover:
         mock_discover.return_value = {}
-        kasa = KasaMonitor()
+        kasa = KasaMonitor(api_key=None, local_lat=None, local_lon=None, local_grid_id="DE")
 
         # Act
         await kasa.discover_devices()
@@ -27,7 +27,7 @@ async def test_monitor_energy_use():
         mock_device.alias = "Device"
         mock_device.emeter_realtime = {"power": 100}
         mock_discover.return_value = {"192.168.0.1": mock_device}
-        kasa = KasaMonitor()
+        kasa = KasaMonitor(api_key=None, local_lat=None, local_lon=None, local_grid_id="DE")
         await kasa.discover_devices()
 
         # Act
@@ -41,7 +41,7 @@ async def test_monitor_energy_use():
 @pytest.mark.real_device
 async def test_connect_to_real_device():
     # Arrange
-    kasa = KasaMonitor()
+    kasa = KasaMonitor(api_key=None, local_lat=None, local_lon=None, local_grid_id="DE")
 
     # Act
     await kasa.discover_devices()
@@ -53,7 +53,7 @@ async def test_connect_to_real_device():
 @pytest.mark.real_device
 async def test_monitor_energy_use_real_device():
     # Arrange
-    kasa = KasaMonitor()
+    kasa = KasaMonitor(api_key=None, local_lat=None, local_lon=None, local_grid_id="DE")
     await kasa.discover_devices()
 
     # Act
@@ -67,9 +67,18 @@ async def test_monitor_energy_use_real_device():
 @pytest.mark.real_database
 async def test_monitor_energy_use_continuously_integration(energy_usage_test_data):
     # Arrange
-    db_config = config.db_config
+    db_config = {
+        "user": os.getenv("DB_USER"),
+        "password": os.getenv("DB_PASSWORD"),
+        "database": os.getenv("DB_NAME"),
+        "host": os.getenv("DB_HOST"),
+        "port": os.getenv("DB_PORT"),
+    }
+    local_lat = float(os.getenv("LOCAL_LAT"))
+    local_lon = float(os.getenv("LOCAL_LON"))
+    em_api_key = os.getenv("EM_API_KEY")
     db = Database(db_config)
-    monitor = KasaMonitor()
+    monitor = KasaMonitor(api_key=em_api_key, local_lat=local_lat, local_lon=local_lon)
 
     await monitor.discover_devices()
 
