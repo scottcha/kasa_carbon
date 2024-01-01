@@ -57,11 +57,11 @@ async def test_read_usage():
         mock_connect.return_value.fetch = AsyncMock()
         mock_connect.return_value.is_closed = Mock(return_value=False)
         mock_connect.return_value.close = AsyncMock()
-        await db.read_usage()
+        await db.read_usage(10)
 
     # Assert
     mock_connect.assert_called_once_with(**db_config)
-    expected_query = db._generate_select_sql_query()
+    expected_query = db._generate_select_sql_query(10)
     mock_connect.return_value.fetch.assert_called_once_with(expected_query)
     mock_connect.return_value.close.assert_called_once()
 
