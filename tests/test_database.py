@@ -6,8 +6,6 @@ import os
 from unittest.mock import patch, AsyncMock, Mock
 from kasa_carbon.modules.database import Database
 from kasa_carbon.modules.energy_usage import EnergyUsage
-import kasa_carbon.config as config
-   
 
 @pytest.fixture(autouse=True)
 @pytest.mark.real_database
