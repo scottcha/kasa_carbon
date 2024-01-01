@@ -1,29 +1,26 @@
 from kasa import Discover, SmartPlug, SmartStrip
-from modules.database import Database
-from interfaces.datastore_api import DatastoreAPI
-from modules.electricitymaps_api import ElectricityMapAPI
-from modules.energy_usage import EnergyUsage
+from kasa_carbon.modules.database import Database
+from kasa_carbon.interfaces.datastore_api import DatastoreAPI
+from kasa_carbon.modules.electricitymaps_api import ElectricityMapAPI
+from kasa_carbon.modules.energy_usage import EnergyUsage
 import asyncio
 import time, os
 from datetime import datetime, timezone
 
 class KasaMonitor:
-    def __init__(self, local_lat=None, local_lon=None, local_grid_id=None, co2_api_provider="ElectricityMaps"):
+    def __init__(self, api_key, local_lat=None, local_lon=None, local_grid_id=None, co2_api_provider="ElectricityMaps", em_cache_expiry_mins=30):
         self.devices = []
-        self.lat = None
-        self.lon = None
+        self.lat = local_lat 
+        self.lon = local_lon 
         self.grid_id = None
         if (local_lat is None or local_lon is None) and local_grid_id is None:
-            #TODO get the location from the smart plug; it should have it
-            self.lat = os.getenv("LOCAL_LAT")
-            self.lon = os.getenv("LOCAL_LON")
+            raise ValueError("Must provide either local_lat/local_lon or local_grid_id")
         elif local_grid_id is not None:
             self.grid_id = local_grid_id
-        else:
-            raise ValueError("Must provide either local_lat/local_lon or local_grid_id")
+        #else should be just use local_lat/local_lon
 
         if co2_api_provider == "ElectricityMaps":
-            self.co2_api = ElectricityMapAPI()
+            self.co2_api = ElectricityMapAPI(em_api_key=api_key, em_cache_expiry_mins=em_cache_expiry_mins)
         else:
             raise ValueError("co2_api_provider must be 'EM' until others are supported")        
 
