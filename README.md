@@ -41,7 +41,7 @@ With the database running in the docker container you can launch the application
 
 # Example output
 Here is an example of using excel to graph the output obtained while running two instances of the Phoronix Apache Benchmark across both a Orange Pi and an Intel NUC.  I've only plotted mgCO2e on this chart but watts is also an available reading.  I live in a place with relatively low veraibility in our grid carbon intensity but had the co2/kwhr changed in the local grid during the course of this test it would have impacted the co2 data but not the power data.
-![Example Graph](visualization/apachebenchmarkexample.jpg)
+![Example Graph](visualization/apachebenchmarkexample.png)
 The full example table is also available at (visualization/energy_usage.xlsx)
 
 # Development instructions
