@@ -44,6 +44,9 @@ Here is an example of using excel to graph the output obtained while running two
 ![Example Graph](visualization/apachebenchmarkexample.png)
 The full example table is also available at (visualization/energy_usage.xlsx)
 
+# Notes
+I haven't seen any calibration information on these plugs but I do know that when doing measurements for SERT or Energy Star or other compliance focused energy measurment a calibrated energy monitor is a reqirement.  So I don't recommend using this for any official compliance work.
+
 # Development instructions
 You can run the project from source as 
 'python -m kasa_carbon.kasa_carbon_main
