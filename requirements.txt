@@ -1,6 +1,6 @@
-python-kasa==0.5.4
+python-kasa==0.7.0.5
 psycopg2-binary==2.9.9
 asyncpg==0.29.0
 pytz==2023.3.post1
-aiohttp==3.9.1
+aiohttp==3.9.5
 python-dotenv==1.0.0
