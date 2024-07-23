@@ -24,7 +24,7 @@ The energy monitoring task is still running.
 The monitoring task will run until killed while appending the readings to the output file.
 
 # Database mode
-There is also a more advanced database mode.  You can deploy the required postgres databased to a docker container using the provided docker-compose.yml file in the source.  
+There is also a more advanced database mode.  You can deploy the required postgres database to a docker container using the provided docker-compose.yml file in the source.  
 There are several parameters which are required for this which can be read from environment variables.  Here are some recommended values.
 ```python
 DB_HOST=host.docker.internal
