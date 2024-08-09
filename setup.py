@@ -16,7 +16,8 @@ setup(
         'asyncpg==0.29.0',
         'pytz==2023.3.post1',
         'aiohttp==3.9.5',
-        'python-dotenv==1.0.0'
+        'python-dotenv==1.0.0',
+        'requests==3.31.0'
     ],
     classifiers=[
         'Programming Language :: Python :: 3',
