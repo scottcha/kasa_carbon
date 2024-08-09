@@ -3,13 +3,16 @@
 import asyncio
 import argparse
 import os
-from kasa_carbon.modules import kasa_monitor, database, file_storage
+from kasa_carbon.modules import kasa_monitor, omada_monitor, database, file_storage
 from dotenv import load_dotenv, find_dotenv
+
+from kasa_carbon.modules.device_factory import create_monitor
 
 async def main():
     load_dotenv(find_dotenv())
 
     parser = argparse.ArgumentParser(description='kasa-carbon arguments')
+    parser.add_argument('--energy-device', choices=['kasa', 'omada'], default='kasa', help='Energy device to monitor')
     parser.add_argument('--storage', choices=['database', 'file'], default='database', help='Storage method')
     parser.add_argument('--file-path', default='energy_usage.csv', help='File path for file storage')
     parser.add_argument('--file-mode', choices=['append', 'overwrite'], default='append', help='File mode for file storage append will continuously append and overwrite will only keep the most recent value')
@@ -24,7 +27,6 @@ async def main():
     parser.add_argument("--local_lat", default=os.getenv("LOCAL_LAT"), type=float, help="Local latitude")
     parser.add_argument("--local_lon", default=os.getenv("LOCAL_LON"), type=float, help="Local longitude")
     parser.add_argument("--update_interval_sec", default=15, type=int, help="Update interval in seconds")
-
 
     args = parser.parse_args()
 
@@ -54,7 +56,8 @@ async def main():
         "host": args.db_host,
         "port": args.db_port,
     }
-    kasa = kasa_monitor.KasaMonitor(api_key = API_KEY, local_lon=LOCAL_LON, local_lat=LOCAL_LAT, co2_api_provider=API_TYPE, em_cache_expiry_mins=EM_CACHE_EXPIRY_MINS)
+    ENERGY_DEVICE = args.energy_device
+    device = create_monitor(ENERGY_DEVICE, api_key=API_KEY, local_lat=LOCAL_LAT, local_lon=LOCAL_LON)
 
     if args.storage == 'file':
         storage = file_storage.FileStorage(args.file_path, args.file_mode)
@@ -62,7 +65,7 @@ async def main():
         storage = database.Database(db_config)
 
     # Monitor energy use continuously in a subthread to avoid blocking the main thread
-    energy_use_task = asyncio.create_task(kasa.monitor_energy_use_continuously(storage, delay=UPDATE_INTERVAL_SEC))
+    energy_use_task = asyncio.create_task(device.monitor_energy_use_continuously(storage, delay=UPDATE_INTERVAL_SEC))
     
     while True:
         if energy_use_task.done():

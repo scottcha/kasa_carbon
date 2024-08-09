@@ -1,6 +1,6 @@
 [project]
 name = "kasa_carbon"
-version = "0.0.5"
+version = "0.0.6"
 authors = [
   { name="Scott Chamberlin", email="scott@snowymountainworks.com" },
 ]

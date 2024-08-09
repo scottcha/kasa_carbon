@@ -2,20 +2,20 @@ from setuptools import setup, find_packages
 
 setup(
     name='kasa-carbon',
-    version='0.0.4',
+    version='0.0.6',
     packages=find_packages(),
     author='Scott Chamberlin',
     author_email='scott@snowymountainworks.com',
-    description='Monitor energy and carbon values from Kasa smart plug',
+    description='Monitor energy and carbon values from Kasa smart plug or Omada PoE switch',
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
     url='https://github.com/scottcha/kasa_carbon',
     install_requires=[
-        'python-kasa==0.5.4',
+        'python-kasa==0.7.0.5',
         'psycopg2-binary==2.9.9',
         'asyncpg==0.29.0',
         'pytz==2023.3.post1',
-        'aiohttp==3.9.1',
+        'aiohttp==3.9.5',
         'python-dotenv==1.0.0'
     ],
     classifiers=[
