@@ -1,13 +1,15 @@
 from kasa import Discover, SmartPlug, SmartStrip
+from kasa_carbon.interfaces.monitor_api import MonitorAPI
 from kasa_carbon.modules.database import Database
 from kasa_carbon.interfaces.datastore_api import DatastoreAPI
 from kasa_carbon.modules.electricitymaps_api import ElectricityMapAPI
 from kasa_carbon.modules.energy_usage import EnergyUsage
-import asyncio
-import time, os
+import time
 from datetime import datetime, timezone
 
-class KasaMonitor:
+from kasa_carbon.modules.generic_monitor import monitor_energy_use
+
+class KasaMonitor(MonitorAPI):
     def __init__(self, api_key, local_lat=None, local_lon=None, local_grid_id=None, co2_api_provider="ElectricityMaps", em_cache_expiry_mins=30):
         self.devices = []
         self.lat = local_lat 
@@ -76,29 +78,4 @@ class KasaMonitor:
         Returns:
             None
         '''
-        start_time = time.time()
-
-        try:
-            while True:
-                energy_values = await self.monitor_energy_use_once()
-
-                #Get average CO2 from API
-                co2 = await self._get_co2_data()
-                for device, power in energy_values.items():
-                    #convert gird co2 to device actual co2 by taking the timespan (assuming constant power draw over that period) and 
-                    #multiplying by the grid co2 while also converting to mgCO2e
-                    power_kwatts = power / 1000.0 #convert to kW from watts
-                    hours = delay / 3600.0 #time in use in hours
-                    co2emitted = hours * power_kwatts * co2 / 1000.0 #convert to mgCO2e 
-                    energy_usage = {"device": device, "timestamp": datetime.now(timezone.utc), 
-                                    "power_draw_watts": power, "avg_emitted_mgco2e": co2emitted,
-                                    "grid_carbon_intensity_gco2perkwhr": co2}
-
-                    await db.write_usage(EnergyUsage(energy_usage_dict=energy_usage))
-
-                if timeout is not None and time.time() - start_time >= timeout:
-                    break
-
-                time.sleep(delay)
-        finally:
-            await db.close()
+        await monitor_energy_use(self.monitor_energy_use_once, self._get_co2_data, db, delay, timeout)
